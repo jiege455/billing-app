@@ -170,9 +170,15 @@
         .rec-card .rr.lose { color: var(--danger); }
         .rec-card .rr.gain { color: var(--success); }
         .rec-card .del-btn {
-            position: absolute; top: 10px; right: 10px;
+            position: static;
             width: 26px; height: 26px; border: none; background: #fee;
             color: var(--danger); border-radius: 50%; font-size: 15px; cursor: pointer;
+        }
+        .rec-card .copy-btn {
+            position: static;
+            width: 26px; height: 26px; border: none; background: #e8f0fe;
+            color: var(--primary); border-radius: 50%; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .empty { text-align: center; padding: 40px 20px; color: var(--text-sec); }
@@ -502,7 +508,10 @@ function renderRecords() {
         const rt = r.profit > 0 ? `赚 ¥${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏 ¥${Math.abs(r.profit).toFixed(2)}` : '持平');
         return `
         <div class="rec-card">
-            <button class="del-btn" onclick="delRec(${r.id})">×</button>
+            <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;">
+                <button class="copy-btn" onclick="copyRec(${r.id})">📋</button>
+                <button class="del-btn" onclick="delRec(${r.id})">×</button>
+            </div>
             <div class="rd">${ds}</div>
             <div class="rn">${esc(r.note)}</div>
             <div class="rg">
@@ -528,6 +537,23 @@ function delRec(id) {
         save(load().filter(r => r.id !== id));
         renderRecords(); updateSummary(); showToast('已删除');
     });
+}
+
+function copyRec(id) {
+    const r = load().find(x => x.id === id);
+    if (!r) return;
+    const d = new Date(r.date);
+    const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}`;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制！'));
+    } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('📋 已复制！');
+    }
 }
 
 // ===== Settings =====
