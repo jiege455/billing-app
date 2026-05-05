@@ -305,6 +305,7 @@
         <span class="mt" id="curM">2026年5月</span>
         <button id="nextM">▶</button>
     </div>
+    <button class="btn btn-outline" id="copyAllBtn" style="margin-bottom:14px;">📋 一键复制本月全部记录</button>
     <div id="recList"></div>
 </div>
 
@@ -555,6 +556,42 @@ function copyRec(id) {
         showToast('📋 已复制！');
     }
 }
+
+// ===== Copy All =====
+document.getElementById('copyAllBtn').addEventListener('click', () => {
+    const records = load();
+    const y = viewM.getFullYear(), m = viewM.getMonth();
+    const filtered = records.filter(r => { const d = new Date(r.date); return d.getMonth() === m && d.getFullYear() === y; });
+    if (!filtered.length) { showToast('本月暂无记录'); return; }
+
+    // 按日期分组
+    let lines = [];
+    let lastDate = '';
+    filtered.forEach(r => {
+        const d = new Date(r.date);
+        const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        if (dateStr !== lastDate) {
+            if (lastDate) lines.push('---------');
+            lines.push(dateStr);
+            lastDate = dateStr;
+        }
+        lines.push(`${r.note}`);
+        lines.push(`总数：${r.collect.toFixed(2)}`);
+        lines.push(`中：${r.payout.toFixed(2)}`);
+        lines.push(`提成：${r.commission.toFixed(2)}`);
+    });
+
+    const text = lines.join('\n');
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制全部记录！'));
+    } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('📋 已复制全部记录！');
+    }
+});
 
 // ===== Settings =====
 document.getElementById('setRate').addEventListener('change', e => {
