@@ -574,6 +574,8 @@ function renderRecords() {
         const d = new Date(r.date);
         const ds = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const pText = r.profit > 0 ? `赚：${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏：${Math.abs(r.profit).toFixed(2)}` : '持平：0.00');
+        const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
+        const sText = loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账');
         const sep = idx > 0 && ds !== (filtered[idx-1] ? (() => { const pd = new Date(filtered[idx-1].date); return `${pd.getFullYear()}/${pd.getMonth()+1}/${pd.getDate()}`; })() : '') ? '---------' : '';
         return `
         ${sep ? `<div class="rec-sep">${sep}</div>` : ''}
@@ -588,6 +590,7 @@ function renderRecords() {
             <div class="rec-text">中：${r.payout.toFixed(2)}</div>
             <div class="rec-text">提成：${r.commission.toFixed(2)}</div>
             <div class="rec-text">${pText}</div>
+            <div class="rec-text" style="color:var(--primary);font-weight:700;">${sText}</div>
         </div>`;
     }).join('');
 }
@@ -633,7 +636,9 @@ function copyRec(id) {
     if (!r) return;
     const d = new Date(r.date);
     const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
+    const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
+    const sText = loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账');
+    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}\n${sText}`;
     copyText(text);
 }
 
@@ -660,6 +665,8 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
         lines.push(`中：${r.payout.toFixed(2)}`);
         lines.push(`提成：${r.commission.toFixed(2)}`);
         lines.push(`${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`);
+        const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
+        lines.push(loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账'));
     });
 
     const text = lines.join('\n');
