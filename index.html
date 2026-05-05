@@ -190,6 +190,29 @@
             user-select: all;
         }
 
+        /* Settle Card */
+        .settle-card {
+            background: var(--card); border-radius: 14px;
+            padding: 16px; margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--primary);
+        }
+        .settle-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        .settle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 0; font-size: 14px; color: var(--text-sec);
+        }
+        .settle-red { font-weight: 700; color: var(--danger); font-size: 16px; }
+        .settle-green { font-weight: 700; color: var(--success); font-size: 16px; }
+        .settle-divider { height: 1.5px; background: var(--border); margin: 8px 0; }
+        .settle-result {
+            text-align: center; font-size: 18px; font-weight: 800;
+            padding: 8px; border-radius: 10px;
+        }
+        .settle-result.to-me { background: #e6f4ea; color: var(--success); }
+        .settle-result.to-friend { background: #fce8e6; color: var(--danger); }
+        .settle-result.even { background: #f5f5f5; color: var(--text-sec); }
+
         .empty { text-align: center; padding: 40px 20px; color: var(--text-sec); }
         .empty .ei { font-size: 48px; margin-bottom: 10px; }
 
@@ -302,6 +325,21 @@
             <div class="rc-value gray" id="resProfit">¥0</div>
             <div class="rc-formula">收款 - 中的钱</div>
         </div>
+    </div>
+
+    <!-- 结算卡片 -->
+    <div class="settle-card" id="settleCard" style="display:none;">
+        <div class="settle-title">🔄 结算</div>
+        <div class="settle-row">
+            <span>💰 收款要给朋友</span>
+            <span class="settle-red" id="settleGive">¥0</span>
+        </div>
+        <div class="settle-row">
+            <span>💵 朋友要给我（垫付+提成）</span>
+            <span class="settle-green" id="settleGet">¥0</span>
+        </div>
+        <div class="settle-divider"></div>
+        <div class="settle-result" id="settleResult">-</div>
     </div>
 
     <button class="btn btn-primary" id="saveBtn">💾 保存</button>
@@ -431,7 +469,33 @@ function calc() {
         pEl.className = 'rc-value gray';
     }
 
-    return { collect, payout, advance, rate, commission, profit };
+    // Settle calculation
+    const giveToFriend = collect; // 收款给朋友
+    const friendGiveMe = advance + commission; // 朋友给我：垫付 + 提成
+    const settleDiff = friendGiveMe - giveToFriend; // 正=朋友转我，负=我转朋友
+
+    const settleCard = document.getElementById('settleCard');
+    if (collect > 0 || advance > 0) {
+        settleCard.style.display = 'block';
+        document.getElementById('settleGive').textContent = '¥' + giveToFriend.toFixed(2);
+        document.getElementById('settleGet').textContent = '¥' + friendGiveMe.toFixed(2);
+
+        const sEl = document.getElementById('settleResult');
+        if (settleDiff > 0) {
+            sEl.textContent = '💵 朋友转给我 ¥' + settleDiff.toFixed(2);
+            sEl.className = 'settle-result to-me';
+        } else if (settleDiff < 0) {
+            sEl.textContent = '💰 我转给朋友 ¥' + Math.abs(settleDiff).toFixed(2);
+            sEl.className = 'settle-result to-friend';
+        } else {
+            sEl.textContent = '✅ 刚好持平，不用转';
+            sEl.className = 'settle-result even';
+        }
+    } else {
+        settleCard.style.display = 'none';
+    }
+
+    return { collect, payout, advance, rate, commission, profit, settleDiff };
 }
 
 document.getElementById('fCollect').addEventListener('input', calc);
@@ -469,6 +533,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     document.getElementById('resCommF').textContent = '收款 × ' + ((loadSet().rate)*100).toFixed(0) + '%';
     document.getElementById('resProfit').textContent = '¥0';
     document.getElementById('resProfit').className = 'rc-value gray';
+    document.getElementById('settleCard').style.display = 'none';
 
     updateSummary();
     showToast('✅ 已保存！');
