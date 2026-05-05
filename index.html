@@ -397,11 +397,11 @@ function calc() {
 
     const pEl = document.getElementById('resProfit');
     if (profit > 0) {
-        pEl.textContent = '亏 ¥' + profit.toFixed(2);
-        pEl.className = 'rc-value red';
-    } else if (profit < 0) {
-        pEl.textContent = '赚 ¥' + Math.abs(profit).toFixed(2);
+        pEl.textContent = '赚 ¥' + profit.toFixed(2);
         pEl.className = 'rc-value green';
+    } else if (profit < 0) {
+        pEl.textContent = '亏 ¥' + Math.abs(profit).toFixed(2);
+        pEl.className = 'rc-value red';
     } else {
         pEl.textContent = '持平';
         pEl.className = 'rc-value gray';
@@ -465,8 +465,8 @@ function updateSummary() {
     document.getElementById('sumComm').textContent = '¥' + tcm.toFixed(2);
 
     const pEl = document.getElementById('sumProfit');
-    if (tpr > 0) { pEl.textContent = '亏 ¥' + tpr.toFixed(2); pEl.style.color = 'var(--danger)'; }
-    else if (tpr < 0) { pEl.textContent = '赚 ¥' + Math.abs(tpr).toFixed(2); pEl.style.color = 'var(--success)'; }
+    if (tpr > 0) { pEl.textContent = '赚 ¥' + tpr.toFixed(2); pEl.style.color = 'var(--success)'; }
+    else if (tpr < 0) { pEl.textContent = '亏 ¥' + Math.abs(tpr).toFixed(2); pEl.style.color = 'var(--danger)'; }
     else { pEl.textContent = '¥0'; pEl.style.color = 'var(--text)'; }
 
     document.getElementById('headerSub').textContent = `${now.getFullYear()}年${now.getMonth()+1}月 · 共${mr.length}笔`;
@@ -486,8 +486,8 @@ function renderRecords() {
     box.innerHTML = filtered.map(r => {
         const d = new Date(r.date);
         const ds = `${m+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        const rc = r.profit > 0 ? 'lose' : (r.profit < 0 ? 'gain' : '');
-        const rt = r.profit > 0 ? `亏 ¥${r.profit.toFixed(2)}` : (r.profit < 0 ? `赚 ¥${Math.abs(r.profit).toFixed(2)}` : '持平');
+        const rc = r.profit > 0 ? 'gain' : (r.profit < 0 ? 'lose' : '');
+        const rt = r.profit > 0 ? `赚 ¥${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏 ¥${Math.abs(r.profit).toFixed(2)}` : '持平');
         return `
         <div class="rec-card">
             <button class="del-btn" onclick="delRec(${r.id})">×</button>
