@@ -331,19 +331,19 @@
     <div class="settle-card" id="settleCard" style="display:none;">
         <div class="settle-title">🔄 结算</div>
         <div class="settle-row">
-            <span>🎰 收款先赔中奖</span>
+            <span>💵 收款（给朋友）</span>
+            <span id="settleCollect">¥0</span>
+        </div>
+        <div class="settle-row">
+            <span>🎰 中的钱（要赔的）</span>
             <span id="settlePayout">¥0</span>
         </div>
         <div class="settle-row">
-            <span>💰 赔完还差（从垫付扣）</span>
-            <span class="settle-red" id="settleGap">¥0</span>
+            <span>💰 我垫付的</span>
+            <span id="settleAdvance">¥0</span>
         </div>
         <div class="settle-row">
-            <span>💵 垫付剩余（朋友还我）</span>
-            <span class="settle-green" id="settleRefund">¥0</span>
-        </div>
-        <div class="settle-row">
-            <span>🤝 提成（朋友单独给我）</span>
+            <span>🤝 提成（朋友给我）</span>
             <span class="settle-green" id="settleComm">¥0</span>
         </div>
         <div class="settle-divider"></div>
@@ -478,33 +478,29 @@ function calc() {
     }
 
     // Settle calculation
-    // 收款先用来赔中奖，不够从垫付扣，垫付剩余朋友还我，提成单独给
-    const usedForPayout = Math.min(collect, payout); // 收款中用来赔中奖的部分
-    const gap = payout - collect; // 赔完还差多少（正=不够，负=有剩）
-    const refund = Math.max(0, advance - Math.max(0, gap)); // 垫付剩余（朋友还我）
-    const friendGiveMe = refund + commission; // 朋友总共转给我
+    // 垫付是我先掏钱赔的，相当于扣总数
+    // 朋友欠我 = 垫付 - (中的钱 - 收款) + 提成
+    // 即：朋友欠我 = 垫付 + 收款 - 中的钱 + 提成
+    const shortfall = payout - collect; // 中的钱 - 收款 = 还差多少要赔
+    const advanceUsed = Math.min(advance, Math.max(0, shortfall)); // 垫付里实际用了多少
+    const advanceLeft = advance - advanceUsed; // 垫付没用完的（朋友还我）
+    const friendOwesMe = advanceLeft + commission; // 朋友总共欠我
 
     const settleCard = document.getElementById('settleCard');
     if (collect > 0 || advance > 0) {
         settleCard.style.display = 'block';
-        document.getElementById('settlePayout').textContent = '¥' + usedForPayout.toFixed(2);
-
-        const gapEl = document.getElementById('settleGap');
-        if (gap > 0) {
-            gapEl.textContent = '¥' + gap.toFixed(2);
-            gapEl.className = 'settle-red';
-        } else {
-            gapEl.textContent = '¥0（收款够赔）';
-            gapEl.className = 'settle-green';
-        }
-
-        document.getElementById('settleRefund').textContent = '¥' + refund.toFixed(2);
+        document.getElementById('settleCollect').textContent = '¥' + collect.toFixed(2);
+        document.getElementById('settlePayout').textContent = '¥' + payout.toFixed(2);
+        document.getElementById('settleAdvance').textContent = '¥' + advance.toFixed(2);
         document.getElementById('settleComm').textContent = '¥' + commission.toFixed(2);
 
         const sEl = document.getElementById('settleResult');
-        if (friendGiveMe > 0) {
-            sEl.textContent = '💵 朋友转给我 ¥' + friendGiveMe.toFixed(2) + '（还垫付¥' + refund.toFixed(2) + ' + 提成¥' + commission.toFixed(2) + '）';
+        if (friendOwesMe > 0) {
+            sEl.textContent = '💵 朋友转给我 ¥' + friendOwesMe.toFixed(2);
             sEl.className = 'settle-result to-me';
+        } else if (friendOwesMe < 0) {
+            sEl.textContent = '💰 我转给朋友 ¥' + Math.abs(friendOwesMe).toFixed(2);
+            sEl.className = 'settle-result to-friend';
         } else {
             sEl.textContent = '✅ 不用转账';
             sEl.className = 'settle-result even';
@@ -513,7 +509,7 @@ function calc() {
         settleCard.style.display = 'none';
     }
 
-    return { collect, payout, advance, rate, commission, profit, settleDiff: friendGiveMe };
+    return { collect, payout, advance, rate, commission, profit, settleDiff: friendOwesMe };
 }
 
 document.getElementById('fCollect').addEventListener('input', calc);
