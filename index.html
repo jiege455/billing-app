@@ -279,7 +279,7 @@
         <div class="s-val green" id="sumCollect">¥0</div>
     </div>
     <div class="s-card">
-        <div class="s-label">💸 本月总赔付</div>
+        <div class="s-label">💸 本月总垫付</div>
         <div class="s-val red" id="sumPayout">¥0</div>
     </div>
     <div class="s-card">
@@ -316,14 +316,19 @@
         <input type="number" id="fRate" placeholder="0.1 = 10%" step="0.01" value="0.1">
     </div>
 
+    <div class="form-group">
+        <label>💰 我垫付了多少钱（帮朋友先出的钱）</label>
+        <input type="number" id="fAdvance" placeholder="我实际垫付的总金额" step="0.01">
+    </div>
+
     <!-- Payout Section -->
     <div class="payout-section">
         <div class="section-title">
-            <span>🎰 中奖赔付明细</span>
-            <span id="payoutTotal" style="font-size:13px;font-weight:700;color:#e65100;">总赔付：¥0</span>
+            <span>🎰 中奖赔付明细（帮您记一下，方便对账）</span>
+            <span id="payoutTotal" style="font-size:13px;font-weight:700;color:#e65100;">明细合计：¥0</span>
         </div>
         <div id="payoutList"></div>
-        <button class="add-payout-btn" id="addPayoutBtn">+ 添加一条赔付</button>
+        <button class="add-payout-btn" id="addPayoutBtn">+ 添加一条赔付明细</button>
     </div>
 
     <!-- Calc Preview -->
@@ -334,15 +339,15 @@
             <span class="cl-val green" id="pvCollect">-</span>
         </div>
         <div class="calc-line">
-            <span class="cl-label">总赔付（垫付）</span>
-            <span class="cl-val red" id="pvPayout">-</span>
+            <span class="cl-label">我垫付的钱</span>
+            <span class="cl-val red" id="pvAdvance">-</span>
         </div>
         <div class="calc-line">
             <span class="cl-label">提成（收款 × 比例）</span>
             <span class="cl-val blue" id="pvCommission">-</span>
         </div>
         <div class="calc-line cl-total">
-            <span class="cl-label">盈亏</span>
+            <span class="cl-label">盈亏（垫付 - 收款 + 提成）</span>
             <span class="cl-val" id="pvProfit">-</span>
         </div>
     </div>
@@ -402,13 +407,12 @@
             <p style="margin-left:10px;">2. 朋友给提成 = 收款 × 提成比例</p>
             <p style="margin-left:10px;">3. 有客户中奖，您先垫钱赔付</p>
             <p style="margin-top:10px;"><strong style="color:var(--text);">计算公式：</strong></p>
-            <p style="margin-left:10px;">总赔付 = 各条赔付之和（人数×金额 + 额外费用）</p>
             <p style="margin-left:10px;">提成 = 收款 × 提成比例</p>
-            <p style="margin-left:10px;background:#fff3e0;padding:4px 8px;border-radius:6px;color:#e65100;font-weight:600;">盈亏 = 赔付 - 收款 + 提成</p>
+            <p style="margin-left:10px;background:#fff3e0;padding:4px 8px;border-radius:6px;color:#e65100;font-weight:600;">盈亏 = 垫付 - 收款 + 提成</p>
             <p style="margin-top:10px;"><strong style="color:var(--text);">举例：</strong></p>
             <p style="margin-left:10px;">收款：1571 元（全部给朋友）</p>
-            <p style="margin-left:10px;">赔付：78人 × 20元 + 305元 = 1865 元（您垫付）</p>
-            <p style="margin-left:10px;">提成：1571 × 10% = 157.1 元（朋友给您）</p>
+            <p style="margin-left:10px;">垫付：1865 元（我帮朋友先出的钱）</p>
+            <p style="margin-left:10px;">提成：1571 × 10% = 157.1 元（朋友给我）</p>
             <p style="margin-left:10px;color:var(--danger);font-weight:700;">亏损：1865 - 1571 + 157.1 = 451.1 元</p>
         </div>
         <button class="btn btn-primary" style="margin-top:16px;" onclick="closeModal('formulaModal')">知道了</button>
@@ -494,25 +498,29 @@ document.getElementById('addPayoutBtn').addEventListener('click', () => {
 function calc() {
     const collect = parseFloat(document.getElementById('fCollect').value) || 0;
     const rate = parseFloat(document.getElementById('fRate').value) || 0;
+    const advance = parseFloat(document.getElementById('fAdvance').value) || 0;
 
-    let totalPayout = 0;
+    // Payout details (for record keeping, not used in main calc)
+    let payoutDetail = 0;
     payoutItems.forEach(item => {
         const count = parseFloat(item.count) || 0;
         const amount = parseFloat(item.amount) || 0;
         const extra = parseFloat(item.extra) || 0;
-        totalPayout += count * amount + extra;
+        payoutDetail += count * amount + extra;
     });
 
     const commission = collect * rate;
+    // Use advance (manual input) if provided, otherwise fallback to payout detail
+    const totalPayout = advance > 0 ? advance : payoutDetail;
     const profit = totalPayout - collect + commission;
 
-    document.getElementById('payoutTotal').textContent = '总赔付：¥' + totalPayout.toFixed(2);
+    document.getElementById('payoutTotal').textContent = '明细合计：¥' + payoutDetail.toFixed(2);
 
     const box = document.getElementById('calcBox');
     if (collect > 0 || totalPayout > 0) {
         box.style.display = 'block';
         document.getElementById('pvCollect').textContent = '¥' + collect.toFixed(2);
-        document.getElementById('pvPayout').textContent = '¥' + totalPayout.toFixed(2);
+        document.getElementById('pvAdvance').textContent = '¥' + totalPayout.toFixed(2);
         document.getElementById('pvCommission').textContent = '¥' + commission.toFixed(2);
         const pEl = document.getElementById('pvProfit');
         if (profit > 0) {
@@ -529,10 +537,10 @@ function calc() {
         box.style.display = 'none';
     }
 
-    return { collect, rate, totalPayout, commission, profit };
+    return { collect, rate, advance, totalPayout, payoutDetail, commission, profit };
 }
 
-['fCollect', 'fRate'].forEach(id => {
+['fCollect', 'fRate', 'fAdvance'].forEach(id => {
     document.getElementById(id).addEventListener('input', calc);
 });
 
@@ -548,6 +556,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
         note: note || (new Date().getMonth()+1) + '月' + new Date().getDate() + '日',
         collect: c.collect,
         rate: c.rate,
+        advance: c.advance,
         payouts: payoutItems.filter(p => (parseFloat(p.count)||0) > 0 || (parseFloat(p.extra)||0) > 0),
         totalPayout: c.totalPayout,
         commission: c.commission,
@@ -561,6 +570,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     // Reset
     document.getElementById('fNote').value = '';
     document.getElementById('fCollect').value = '';
+    document.getElementById('fAdvance').value = '';
     payoutItems = [{ count: '', amount: '', extra: '' }];
     renderPayouts();
     document.getElementById('calcBox').style.display = 'none';
@@ -653,8 +663,8 @@ function renderRecords() {
             <div class="rec-name">${esc(r.note)}</div>
             <div class="rec-grid">
                 <span>收款 <b class="v">¥${r.collect.toFixed(2)}</b></span>
+                <span>垫付 <b class="v" style="color:var(--danger)">¥${r.totalPayout.toFixed(2)}</b></span>
                 <span>提成 <b class="v">¥${r.commission.toFixed(2)}</b></span>
-                <span>总赔付 <b class="v" style="color:var(--danger)">¥${r.totalPayout.toFixed(2)}</b></span>
                 <span>比例 <b class="v">${(r.rate*100).toFixed(0)}%</b></span>
             </div>
             ${payoutDetail ? `<div class="rec-payouts">🎰 ${esc(payoutDetail)}</div>` : ''}
@@ -695,6 +705,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
         t += `日期：${d.toLocaleString()}\n`;
         t += `备注：${r.note}\n`;
         t += `收款：¥${r.collect.toFixed(2)}（全部给朋友）\n`;
+        t += `垫付：¥${r.totalPayout.toFixed(2)}（我帮朋友先出的钱）\n`;
         if (r.payouts) {
             r.payouts.forEach((p,j) => {
                 const cnt = parseFloat(p.count)||0, amt = parseFloat(p.amount)||0, ext = parseFloat(p.extra)||0;
