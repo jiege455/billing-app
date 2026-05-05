@@ -610,21 +610,38 @@ function delRec(id) {
     });
 }
 
+function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制！')).catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+    try {
+        document.execCommand('copy');
+        showToast('📋 已复制！');
+    } catch(e) {
+        // 最后手段：弹出文本让用户手动复制
+        prompt('请手动复制以下内容：', text);
+    }
+    document.body.removeChild(ta);
+}
+
 function copyRec(id) {
     const r = load().find(x => x.id === id);
     if (!r) return;
     const d = new Date(r.date);
     const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
     const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n垫付：${(r.advance||0).toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制！'));
-    } else {
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('📋 已复制！');
-    }
+    copyText(text);
 }
 
 // ===== Copy All =====
@@ -654,15 +671,7 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
     });
 
     const text = lines.join('\n');
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制全部记录！'));
-    } else {
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('📋 已复制全部记录！');
-    }
+    copyText(text);
 });
 
 // ===== Settings =====
