@@ -335,7 +335,7 @@
             <span id="settleCollect">¥0</span>
         </div>
         <div class="settle-row">
-            <span>💰 我垫付的（朋友要还我）</span>
+            <span>🎰 中的钱（要赔的）</span>
             <span id="settlePayout">¥0</span>
         </div>
         <div class="settle-row">
@@ -474,22 +474,23 @@ function calc() {
     }
 
     // Settle calculation
-    // 朋友转我 = 垫付 - 收款 + 提成
-    const friendToMe = advance - collect + commission;
+    // 亏损 = 中的钱 - 收款 + 提成
+    // 亏损了朋友要补给我，赚了我要给朋友
+    const loss = payout - collect + commission;
 
     const settleCard = document.getElementById('settleCard');
-    if (collect > 0 || advance > 0) {
+    if (collect > 0 || payout > 0) {
         settleCard.style.display = 'block';
         document.getElementById('settleCollect').textContent = '¥' + collect.toFixed(2);
-        document.getElementById('settlePayout').textContent = '¥' + advance.toFixed(2);
+        document.getElementById('settlePayout').textContent = '¥' + payout.toFixed(2);
         document.getElementById('settleComm').textContent = '¥' + commission.toFixed(2);
 
         const sEl = document.getElementById('settleResult');
-        if (friendToMe > 0) {
-            sEl.textContent = '💵 朋友转给我 ¥' + friendToMe.toFixed(2);
+        if (loss > 0) {
+            sEl.textContent = '💵 朋友转给我 ¥' + loss.toFixed(2);
             sEl.className = 'settle-result to-me';
-        } else if (friendToMe < 0) {
-            sEl.textContent = '💰 我转给朋友 ¥' + Math.abs(friendToMe).toFixed(2);
+        } else if (loss < 0) {
+            sEl.textContent = '💰 我转给朋友 ¥' + Math.abs(loss).toFixed(2);
             sEl.className = 'settle-result to-friend';
         } else {
             sEl.textContent = '✅ 不用转账';
@@ -499,7 +500,7 @@ function calc() {
         settleCard.style.display = 'none';
     }
 
-    return { collect, payout, advance, rate, commission, profit, settleDiff: friendToMe };
+    return { collect, payout, advance, rate, commission, profit, settleDiff: loss };
 }
 
 document.getElementById('fCollect').addEventListener('input', calc);
