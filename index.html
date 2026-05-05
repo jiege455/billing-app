@@ -279,7 +279,7 @@
         <div class="result-card">
             <div class="rc-label">📈 盈亏</div>
             <div class="rc-value gray" id="resProfit">¥0</div>
-            <div class="rc-formula">垫付 - 收款 + 提成</div>
+            <div class="rc-formula">收款 - 中的钱</div>
         </div>
     </div>
 
@@ -337,12 +337,12 @@
             <p>2. 提成 = 收款 × 10%（朋友给您的）</p>
             <p>3. 中了多少钱 → 您先垫付</p>
             <p style="background:#fff3e0;padding:6px 10px;border-radius:8px;color:#e65100;font-weight:700;margin-top:8px;">
-                盈亏 = 中的钱 - 收款 + 提成
+                盈亏 = 收款 - 中的钱
             </p>
             <p style="margin-top:8px;"><strong style="color:var(--text);">举例：</strong></p>
             <p>收款 1571，中了 1865</p>
             <p>提成 = 1571 × 10% = 157.1</p>
-            <p style="color:var(--danger);font-weight:700;">亏损 = 1865 - 1571 + 157.1 = 451.1</p>
+            <p style="color:var(--danger);font-weight:700;">盈亏 = 1571 - 1865 = 亏 294</p>
         </div>
         <button class="btn btn-primary" style="margin-top:16px;" onclick="closeModal('formulaModal')">知道了</button>
     </div>
@@ -389,7 +389,7 @@ function calc() {
     const rate = parseFloat(document.getElementById('setRate').value) || 0.1;
 
     const commission = collect * rate;
-    const profit = payout - collect + commission;
+    const profit = collect - payout;
 
     // Update result cards
     document.getElementById('resComm').textContent = '¥' + commission.toFixed(2);
