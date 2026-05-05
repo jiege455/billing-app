@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a73e8">
-    <title>收钱记账本</title>
+    <title>收单记账本</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <style>
@@ -15,873 +15,744 @@
         :root {
             --primary: #1a73e8;
             --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
             --success: #34a853;
             --danger: #ea4335;
-            --warning: #fbbc04;
-            --bg: #f5f5f5;
+            --warning: #f9ab00;
+            --bg: #f0f2f5;
             --card: #ffffff;
             --text: #202124;
-            --text-secondary: #5f6368;
+            --text-sec: #5f6368;
             --border: #dadce0;
-            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --radius: 14px;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 20px;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Header */
+        /* ===== Header ===== */
         .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
             color: white;
-            padding: 20px 16px 24px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding: 20px 16px 28px;
         }
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .header .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
         }
-        .header .subtitle {
-            font-size: 13px;
-            opacity: 0.85;
-            margin-top: 4px;
-        }
+        .header .subtitle { font-size: 13px; opacity: 0.8; margin-top: 6px; }
 
-        /* Summary Cards */
+        /* ===== Summary ===== */
         .summary {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            padding: 16px;
-            margin-top: -12px;
+            padding: 0 16px;
+            margin-top: -14px;
         }
-        .summary-card {
+        .s-card {
             background: var(--card);
-            border-radius: 12px;
+            border-radius: var(--radius);
             padding: 14px;
             box-shadow: var(--shadow);
         }
-        .summary-card.full { grid-column: 1 / -1; }
-        .summary-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .summary-card .value {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .summary-card .value.income { color: var(--success); }
-        .summary-card .value.loss { color: var(--danger); }
-        .summary-card .value.cost { color: var(--warning); }
-        .summary-card .value.commission { color: var(--primary); }
+        .s-card .s-label { font-size: 11px; color: var(--text-sec); margin-bottom: 4px; }
+        .s-card .s-val { font-size: 18px; font-weight: 700; }
+        .s-card .s-val.green { color: var(--success); }
+        .s-card .s-val.red { color: var(--danger); }
+        .s-card .s-val.blue { color: var(--primary); }
+        .s-card .s-val.orange { color: var(--warning); }
 
-        /* Tab Navigation */
+        /* ===== Tabs ===== */
         .tabs {
             display: flex;
+            margin: 16px 16px 0;
             background: var(--card);
-            margin: 0 16px;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: var(--shadow);
             overflow: hidden;
         }
-        .tab {
+        .tab-btn {
             flex: 1;
-            padding: 12px 8px;
+            padding: 12px 6px;
             text-align: center;
             font-size: 14px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--text-sec);
             border: none;
             background: none;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .tab.active {
-            background: var(--primary);
-            color: white;
-        }
+        .tab-btn.active { background: var(--primary); color: white; border-radius: 10px; }
 
-        /* Form Section */
-        .form-section {
-            display: none;
-            padding: 16px;
-        }
-        .form-section.active { display: block; }
+        /* ===== Sections ===== */
+        .section { display: none; padding: 16px; }
+        .section.active { display: block; }
 
-        .form-group {
-            margin-bottom: 14px;
-        }
+        /* ===== Form ===== */
+        .form-group { margin-bottom: 16px; }
         .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
+            display: block; font-size: 13px; font-weight: 600;
+            color: var(--text-sec); margin-bottom: 6px;
         }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-size: 16px;
-            background: var(--card);
-            color: var(--text);
-            transition: border-color 0.2s;
-            outline: none;
+            width: 100%; padding: 12px 14px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: 16px; background: var(--card); color: var(--text);
+            outline: none; transition: border-color 0.2s;
         }
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary);
-        }
-        .form-group input::placeholder {
-            color: #bbb;
-        }
+        .form-group input:focus { border-color: var(--primary); }
+        .form-group input::placeholder { color: #bbb; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        /* Calculation Preview */
-        .calc-preview {
-            background: #e8f0fe;
+        /* ===== Payout Items ===== */
+        .payout-section {
+            background: #fff8e1;
+            border: 1.5px solid #ffe082;
             border-radius: 12px;
             padding: 14px;
-            margin-bottom: 14px;
-        }
-        .calc-preview .calc-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-        .calc-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            font-size: 14px;
-        }
-        .calc-row .calc-label { color: var(--text-secondary); }
-        .calc-row .calc-value { font-weight: 600; }
-        .calc-row.total {
-            border-top: 1.5px solid var(--primary);
-            margin-top: 6px;
-            padding-top: 8px;
-            font-size: 16px;
-        }
-        .calc-row.total .calc-value { color: var(--danger); }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-primary:active { background: var(--primary-dark); }
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 1.5px solid var(--primary);
-        }
-        .btn-sm {
-            padding: 8px 14px;
-            font-size: 13px;
-            width: auto;
-        }
-
-        /* Records List */
-        .records-section {
-            padding: 16px;
-        }
-        .records-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .records-header h2 {
-            font-size: 17px;
-            font-weight: 600;
-        }
-        .filter-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--card);
-            font-size: 13px;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .record-card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-        .record-card .record-date {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .record-card .record-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin: 4px 0;
-        }
-        .record-card .record-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-        .record-card .record-details span {
-            display: flex;
-            justify-content: space-between;
-        }
-        .record-card .record-details .val {
-            font-weight: 600;
-            color: var(--text);
-        }
-        .record-card .record-loss {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            font-size: 15px;
-            font-weight: 700;
-        }
-        .record-card .record-loss.positive { color: var(--success); }
-        .record-card .record-loss.negative { color: var(--danger); }
-        .record-card .delete-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
-            border: none;
-            background: #fee;
-            color: var(--danger);
-            border-radius: 50%;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 200;
-            align-items: flex-end;
-            justify-content: center;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: var(--card);
-            border-radius: 16px 16px 0 0;
-            padding: 20px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        .modal h3 {
-            font-size: 17px;
             margin-bottom: 16px;
         }
+        .payout-section .section-title {
+            font-size: 14px; font-weight: 600; color: #e65100;
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .payout-item {
+            display: grid; grid-template-columns: 1fr 1fr auto;
+            gap: 8px; margin-bottom: 8px; align-items: end;
+        }
+        .payout-item .mini-group label { font-size: 11px; color: var(--text-sec); margin-bottom: 3px; display: block; }
+        .payout-item .mini-group input {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 14px; outline: none;
+        }
+        .payout-item .mini-group input:focus { border-color: var(--warning); }
+        .payout-item .del-payout {
+            width: 34px; height: 34px; border: none; background: #ffe0b2;
+            color: #e65100; border-radius: 8px; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 1px;
+        }
+        .add-payout-btn {
+            width: 100%; padding: 8px; border: 1.5px dashed #ffb74d;
+            border-radius: 8px; background: none; color: #e65100;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+        }
 
-        /* Toast */
+        /* ===== Calc Preview ===== */
+        .calc-box {
+            background: var(--primary-light);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .calc-box .cb-title { font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; }
+        .calc-line {
+            display: flex; justify-content: space-between;
+            padding: 3px 0; font-size: 14px;
+        }
+        .calc-line .cl-label { color: var(--text-sec); }
+        .calc-line .cl-val { font-weight: 600; }
+        .calc-line.cl-total {
+            border-top: 2px solid var(--primary);
+            margin-top: 6px; padding-top: 8px; font-size: 16px;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:active { background: var(--primary-dark); transform: scale(0.98); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+        .btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+
+        /* ===== Records ===== */
+        .day-nav {
+            display: flex; align-items: center; justify-content: center;
+            gap: 14px; margin-bottom: 14px;
+        }
+        .day-nav button {
+            width: 34px; height: 34px; border: 1px solid var(--border);
+            border-radius: 50%; background: var(--card); font-size: 16px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .day-nav .day-text { font-size: 15px; font-weight: 600; min-width: 110px; text-align: center; }
+
+        .rec-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow);
+            position: relative;
+        }
+        .rec-card .rec-date { font-size: 12px; color: var(--text-sec); }
+        .rec-card .rec-name { font-size: 15px; font-weight: 600; margin: 3px 0; }
+        .rec-card .rec-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 3px; font-size: 13px; color: var(--text-sec); margin-top: 8px;
+        }
+        .rec-card .rec-grid span { display: flex; justify-content: space-between; }
+        .rec-card .rec-grid .v { font-weight: 600; color: var(--text); }
+        .rec-card .rec-result {
+            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; font-size: 15px; font-weight: 700;
+        }
+        .rec-card .rec-result.lose { color: var(--danger); }
+        .rec-card .rec-result.gain { color: var(--success); }
+        .rec-card .rec-payouts {
+            margin-top: 6px; font-size: 12px; color: var(--text-sec);
+            background: #fff8e1; border-radius: 6px; padding: 6px 10px;
+        }
+        .rec-card .del-btn {
+            position: absolute; top: 10px; right: 10px;
+            width: 26px; height: 26px; border: none; background: #fee;
+            color: var(--danger); border-radius: 50%; font-size: 15px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .empty { text-align: center; padding: 40px 20px; color: var(--text-sec); }
+        .empty .e-icon { font-size: 48px; margin-bottom: 10px; }
+
+        /* ===== Settings ===== */
+        .set-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .set-item:last-child { border-bottom: none; }
+        .set-item .set-label { font-size: 15px; }
+        .set-item .set-desc { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+
+        /* ===== Modal ===== */
+        .modal-bg {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 200;
+            align-items: flex-end; justify-content: center;
+        }
+        .modal-bg.active { display: flex; }
+        .modal-box {
+            background: var(--card); border-radius: 16px 16px 0 0;
+            padding: 20px; width: 100%; max-width: 500px;
+            max-height: 75vh; overflow-y: auto;
+        }
+        .modal-box h3 { font-size: 17px; margin-bottom: 14px; }
+
+        /* ===== Toast ===== */
         .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #323232;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 300;
-            transition: transform 0.3s;
-            white-space: nowrap;
+            position: fixed; bottom: 40px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #323232; color: white;
+            padding: 10px 22px; border-radius: 8px;
+            font-size: 14px; z-index: 300;
+            transition: transform 0.3s; white-space: nowrap;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* Settings */
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .setting-item:last-child { border-bottom: none; }
-        .setting-item .setting-label {
-            font-size: 15px;
-        }
-        .setting-item .setting-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        /* Month Picker */
-        .month-nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 12px;
-        }
-        .month-nav button {
-            width: 36px;
-            height: 36px;
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            background: var(--card);
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .month-nav .month-text {
-            font-size: 16px;
-            font-weight: 600;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <h1>💰 收钱记账本</h1>
-        <div class="subtitle" id="headerSubtitle">轻松管理账单，算清盈亏</div>
+<div class="header">
+    <div class="header-top">
+        <h1>💰 收单记账本</h1>
+        <span class="badge" id="todayBadge">今天</span>
+    </div>
+    <div class="subtitle" id="headerSub">帮朋友收单 · 算清提成和赔付</div>
+</div>
+
+<!-- Summary -->
+<div class="summary">
+    <div class="s-card">
+        <div class="s-label">📊 本月总收款</div>
+        <div class="s-val green" id="sumCollect">¥0</div>
+    </div>
+    <div class="s-card">
+        <div class="s-label">💸 本月总赔付</div>
+        <div class="s-val red" id="sumPayout">¥0</div>
+    </div>
+    <div class="s-card">
+        <div class="s-label">🤝 本月总提成</div>
+        <div class="s-val blue" id="sumCommission">¥0</div>
+    </div>
+    <div class="s-card">
+        <div class="s-label">📈 本月总盈亏</div>
+        <div class="s-val" id="sumProfit">¥0</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab-btn active" data-tab="add">📝 记账</button>
+    <button class="tab-btn" data-tab="records">📋 记录</button>
+    <button class="tab-btn" data-tab="settings">⚙️ 设置</button>
+</div>
+
+<!-- ===== ADD TAB ===== -->
+<div class="section active" id="sec-add">
+    <div class="form-group">
+        <label>📋 备注（可选）</label>
+        <input type="text" id="fNote" placeholder="例如：下午场、老王那批">
     </div>
 
-    <!-- Summary Cards -->
-    <div class="summary" id="summarySection">
-        <div class="summary-card">
-            <div class="label">本月总收入</div>
-            <div class="value income" id="totalIncome">¥0.00</div>
-        </div>
-        <div class="summary-card">
-            <div class="label">本月总成本</div>
-            <div class="value cost" id="totalCost">¥0.00</div>
-        </div>
-        <div class="summary-card">
-            <div class="label">本月总提成</div>
-            <div class="value commission" id="totalCommission">¥0.00</div>
-        </div>
-        <div class="summary-card">
-            <div class="label">本月总盈亏</div>
-            <div class="value loss" id="totalProfit">¥0.00</div>
-        </div>
+    <div class="form-group">
+        <label>💵 今天收了多少钱（全部交给朋友）</label>
+        <input type="number" id="fCollect" placeholder="收到的总金额" step="0.01">
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-        <button class="tab active" data-tab="add">📝 新增账单</button>
-        <button class="tab" data-tab="records">📋 历史记录</button>
-        <button class="tab" data-tab="settings">⚙️ 设置</button>
+    <div class="form-group">
+        <label>🤝 提成比例</label>
+        <input type="number" id="fRate" placeholder="0.1 = 10%" step="0.01" value="0.1">
     </div>
 
-    <!-- Add Bill Form -->
-    <div class="form-section active" id="tab-add">
-        <div class="form-group">
-            <label>📝 账单名称</label>
-            <input type="text" id="billName" placeholder="例如：5月第一批货">
+    <!-- Payout Section -->
+    <div class="payout-section">
+        <div class="section-title">
+            <span>🎰 中奖赔付明细</span>
+            <span id="payoutTotal" style="font-size:13px;font-weight:700;color:#e65100;">总赔付：¥0</span>
         </div>
-
-        <div class="form-group">
-            <label>💵 总收入（收到的钱）</label>
-            <input type="number" id="totalIncomeInput" placeholder="输入总收入金额" step="0.01">
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>📦 数量</label>
-                <input type="number" id="quantity" placeholder="数量" step="1">
-            </div>
-            <div class="form-group">
-                <label>🏷️ 单价（成本）</label>
-                <input type="number" id="unitPrice" placeholder="每个成本价" step="0.01">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>➕ 额外费用（运费、包装等）</label>
-            <input type="number" id="extraCost" placeholder="没有就填0" step="0.01" value="0">
-        </div>
-
-        <div class="form-group">
-            <label>🤝 提成比例（例如 0.1 = 10%）</label>
-            <input type="number" id="commissionRate" placeholder="默认0.1" step="0.01" value="0.1">
-        </div>
-
-        <!-- Calculation Preview -->
-        <div class="calc-preview" id="calcPreview" style="display:none;">
-            <div class="calc-title">📊 计算预览</div>
-            <div class="calc-row">
-                <span class="calc-label">成本（数量×单价）</span>
-                <span class="calc-value" id="previewCostQty">-</span>
-            </div>
-            <div class="calc-row">
-                <span class="calc-label">额外费用</span>
-                <span class="calc-value" id="previewExtra">-</span>
-            </div>
-            <div class="calc-row">
-                <span class="calc-label">总成本</span>
-                <span class="calc-value" id="previewTotalCost">-</span>
-            </div>
-            <div class="calc-row">
-                <span class="calc-label">提成（收入×比例）</span>
-                <span class="calc-value" id="previewCommission">-</span>
-            </div>
-            <div class="calc-row total">
-                <span class="calc-label">亏损/盈利</span>
-                <span class="calc-value" id="previewProfit">-</span>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" id="saveBtn">💾 保存账单</button>
+        <div id="payoutList"></div>
+        <button class="add-payout-btn" id="addPayoutBtn">+ 添加一条赔付</button>
     </div>
 
-    <!-- Records -->
-    <div class="form-section" id="tab-records">
-        <div class="records-section">
-            <div class="month-nav">
-                <button id="prevMonth">◀</button>
-                <span class="month-text" id="currentMonth">2026年5月</span>
-                <button id="nextMonth">▶</button>
-            </div>
-            <div id="recordsList"></div>
+    <!-- Calc Preview -->
+    <div class="calc-box" id="calcBox" style="display:none;">
+        <div class="cb-title">📊 计算预览</div>
+        <div class="calc-line">
+            <span class="cl-label">收款（交给朋友）</span>
+            <span class="cl-val green" id="pvCollect">-</span>
+        </div>
+        <div class="calc-line">
+            <span class="cl-label">总赔付（垫付）</span>
+            <span class="cl-val red" id="pvPayout">-</span>
+        </div>
+        <div class="calc-line">
+            <span class="cl-label">提成（收款 × 比例）</span>
+            <span class="cl-val blue" id="pvCommission">-</span>
+        </div>
+        <div class="calc-line cl-total">
+            <span class="cl-label">盈亏</span>
+            <span class="cl-val" id="pvProfit">-</span>
         </div>
     </div>
 
-    <!-- Settings -->
-    <div class="form-section" id="tab-settings">
-        <div class="records-section">
-            <div class="setting-item">
-                <div>
-                    <div class="setting-label">默认提成比例</div>
-                    <div class="setting-desc">新增账单时自动填入</div>
-                </div>
-                <input type="number" id="defaultCommission" style="width:80px;padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:15px;" step="0.01" value="0.1">
-            </div>
-            <div class="setting-item">
-                <div>
-                    <div class="setting-label">导出数据</div>
-                    <div class="setting-desc">导出所有记录为文本文件</div>
-                </div>
-                <button class="btn btn-outline btn-sm" id="exportBtn">导出</button>
-            </div>
-            <div class="setting-item">
-                <div>
-                    <div class="setting-label">清除所有数据</div>
-                    <div class="setting-desc">删除所有账单记录（不可恢复）</div>
-                </div>
-                <button class="btn btn-danger btn-sm" id="clearBtn">清除</button>
-            </div>
-            <div class="setting-item">
-                <div>
-                    <div class="setting-label">计算公式说明</div>
-                    <div class="setting-desc">了解盈亏如何计算</div>
-                </div>
-                <button class="btn btn-outline btn-sm" id="formulaBtn">查看</button>
-            </div>
+    <button class="btn btn-primary" id="saveBtn">💾 保存今天的账</button>
+</div>
+
+<!-- ===== RECORDS TAB ===== -->
+<div class="section" id="sec-records">
+    <div class="day-nav">
+        <button id="prevMonth">◀</button>
+        <span class="day-text" id="curMonth">2026年5月</span>
+        <button id="nextMonth">▶</button>
+    </div>
+    <div id="recList"></div>
+</div>
+
+<!-- ===== SETTINGS TAB ===== -->
+<div class="section" id="sec-settings">
+    <div class="set-item">
+        <div>
+            <div class="set-label">默认提成比例</div>
+            <div class="set-desc">新增记账时自动填入</div>
+        </div>
+        <input type="number" id="setRate" style="width:80px;padding:8px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:15px;" step="0.01" value="0.1">
+    </div>
+    <div class="set-item">
+        <div>
+            <div class="set-label">📤 导出数据</div>
+            <div class="set-desc">导出所有记录为文本文件</div>
+        </div>
+        <button class="btn btn-outline btn-sm" id="exportBtn">导出</button>
+    </div>
+    <div class="set-item">
+        <div>
+            <div class="set-label">🗑️ 清除所有数据</div>
+            <div class="set-desc">删除所有记录（不可恢复）</div>
+        </div>
+        <button class="btn btn-danger btn-sm" id="clearBtn">清除</button>
+    </div>
+    <div class="set-item">
+        <div>
+            <div class="set-label">📖 计算说明</div>
+            <div class="set-desc">了解盈亏怎么算的</div>
+        </div>
+        <button class="btn btn-outline btn-sm" id="formulaBtn">查看</button>
+    </div>
+</div>
+
+<!-- Formula Modal -->
+<div class="modal-bg" id="formulaModal">
+    <div class="modal-box">
+        <h3>📖 计算公式说明</h3>
+        <div style="font-size:14px;line-height:1.9;color:var(--text-sec);">
+            <p><strong style="color:var(--text);">业务流程：</strong></p>
+            <p style="margin-left:10px;">1. 帮朋友收单，收到的钱全部交给朋友</p>
+            <p style="margin-left:10px;">2. 朋友给提成 = 收款 × 提成比例</p>
+            <p style="margin-left:10px;">3. 有客户中奖，您先垫钱赔付</p>
+            <p style="margin-top:10px;"><strong style="color:var(--text);">计算公式：</strong></p>
+            <p style="margin-left:10px;">总赔付 = 各条赔付之和（人数×金额 + 额外费用）</p>
+            <p style="margin-left:10px;">提成 = 收款 × 提成比例</p>
+            <p style="margin-left:10px;background:#fff3e0;padding:4px 8px;border-radius:6px;color:#e65100;font-weight:600;">盈亏 = 赔付 - 收款 + 提成</p>
+            <p style="margin-top:10px;"><strong style="color:var(--text);">举例：</strong></p>
+            <p style="margin-left:10px;">收款：1571 元（全部给朋友）</p>
+            <p style="margin-left:10px;">赔付：78人 × 20元 + 305元 = 1865 元（您垫付）</p>
+            <p style="margin-left:10px;">提成：1571 × 10% = 157.1 元（朋友给您）</p>
+            <p style="margin-left:10px;color:var(--danger);font-weight:700;">亏损：1865 - 1571 + 157.1 = 451.1 元</p>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="closeModal('formulaModal')">知道了</button>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-bg" id="confirmModal">
+    <div class="modal-box">
+        <h3 id="cfmTitle">确认</h3>
+        <p id="cfmMsg" style="font-size:14px;color:var(--text-sec);margin-bottom:16px;"></p>
+        <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline" onclick="closeModal('confirmModal')">取消</button>
+            <button class="btn btn-danger" id="cfmAction">确认</button>
         </div>
     </div>
+</div>
 
-    <!-- Formula Modal -->
-    <div class="modal-overlay" id="formulaModal">
-        <div class="modal">
-            <h3>📊 计算公式说明</h3>
-            <div style="font-size:14px;line-height:1.8;color:var(--text-secondary);">
-                <p><strong style="color:var(--text);">1. 成本计算：</strong></p>
-                <p style="margin-left:12px;">成本 = 数量 × 单价 + 额外费用</p>
-                <p style="margin-top:8px;"><strong style="color:var(--text);">2. 提成计算：</strong></p>
-                <p style="margin-left:12px;">提成 = 总收入 × 提成比例</p>
-                <p style="margin-top:8px;"><strong style="color:var(--text);">3. 盈亏计算：</strong></p>
-                <p style="margin-left:12px;">亏损 = 成本 - 总收入 + 提成</p>
-                <p style="margin-top:12px;color:var(--text);"><strong>举例：</strong></p>
-                <p style="margin-left:12px;">总收入：1571元</p>
-                <p style="margin-left:12px;">数量78个 × 单价20元 = 1560元</p>
-                <p style="margin-left:12px;">额外费用：305元</p>
-                <p style="margin-left:12px;">总成本：1560 + 305 = 1865元</p>
-                <p style="margin-left:12px;">提成：1571 × 10% = 157.1元</p>
-                <p style="margin-left:12px;color:var(--danger);font-weight:600;">亏损：1865 - 1571 + 157.1 = 451.1元</p>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Storage =====
+const SK = 'shoudan_v2';
+const SKS = 'shoudan_settings';
+
+function load() { try { return JSON.parse(localStorage.getItem(SK)) || []; } catch { return []; } }
+function save(d) { localStorage.setItem(SK, JSON.stringify(d)); }
+function loadSet() { try { return JSON.parse(localStorage.getItem(SKS)) || { rate: 0.1 }; } catch { return { rate: 0.1 }; } }
+function saveSet(s) { localStorage.setItem(SKS, JSON.stringify(s)); }
+
+// ===== Tabs =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('sec-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'records') renderRecords();
+    });
+});
+
+// ===== Payout Items =====
+let payoutItems = [{ count: '', amount: '', extra: '' }];
+
+function renderPayouts() {
+    const box = document.getElementById('payoutList');
+    box.innerHTML = payoutItems.map((item, i) => `
+        <div class="payout-item">
+            <div class="mini-group">
+                <label>中奖人数</label>
+                <input type="number" placeholder="人数" step="1" value="${item.count}" oninput="updatePayout(${i},'count',this.value)">
             </div>
-            <button class="btn btn-primary" style="margin-top:16px;" onclick="closeModal('formulaModal')">知道了</button>
-        </div>
-    </div>
-
-    <!-- Confirm Modal -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal">
-            <h3 id="confirmTitle">确认操作</h3>
-            <p id="confirmMsg" style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;"></p>
-            <div style="display:flex;gap:10px;">
-                <button class="btn btn-outline" onclick="closeModal('confirmModal')">取消</button>
-                <button class="btn btn-danger" id="confirmAction">确认</button>
+            <div class="mini-group">
+                <label>每人赔多少</label>
+                <input type="number" placeholder="单价" step="0.01" value="${item.amount}" oninput="updatePayout(${i},'amount',this.value)">
             </div>
+            <div class="mini-group">
+                <label>额外费用</label>
+                <input type="number" placeholder="0" step="0.01" value="${item.extra}" oninput="updatePayout(${i},'extra',this.value)" style="width:70px;">
+            </div>
+            ${payoutItems.length > 1 ? `<button class="del-payout" onclick="removePayout(${i})">×</button>` : '<div style="width:34px;"></div>'}
         </div>
-    </div>
+    `).join('');
+    calc();
+}
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+function updatePayout(i, field, val) {
+    payoutItems[i][field] = val;
+    calc();
+}
 
-    <script>
-        // ===== Data Management =====
-        const STORAGE_KEY = 'billing_records';
-        const SETTINGS_KEY = 'billing_settings';
+function removePayout(i) {
+    payoutItems.splice(i, 1);
+    renderPayouts();
+}
 
-        function getRecords() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            } catch { return []; }
+document.getElementById('addPayoutBtn').addEventListener('click', () => {
+    payoutItems.push({ count: '', amount: '', extra: '' });
+    renderPayouts();
+});
+
+// ===== Calculation =====
+function calc() {
+    const collect = parseFloat(document.getElementById('fCollect').value) || 0;
+    const rate = parseFloat(document.getElementById('fRate').value) || 0;
+
+    let totalPayout = 0;
+    payoutItems.forEach(item => {
+        const count = parseFloat(item.count) || 0;
+        const amount = parseFloat(item.amount) || 0;
+        const extra = parseFloat(item.extra) || 0;
+        totalPayout += count * amount + extra;
+    });
+
+    const commission = collect * rate;
+    const profit = totalPayout - collect + commission;
+
+    document.getElementById('payoutTotal').textContent = '总赔付：¥' + totalPayout.toFixed(2);
+
+    const box = document.getElementById('calcBox');
+    if (collect > 0 || totalPayout > 0) {
+        box.style.display = 'block';
+        document.getElementById('pvCollect').textContent = '¥' + collect.toFixed(2);
+        document.getElementById('pvPayout').textContent = '¥' + totalPayout.toFixed(2);
+        document.getElementById('pvCommission').textContent = '¥' + commission.toFixed(2);
+        const pEl = document.getElementById('pvProfit');
+        if (profit > 0) {
+            pEl.textContent = '亏 ¥' + profit.toFixed(2);
+            pEl.style.color = 'var(--danger)';
+        } else if (profit < 0) {
+            pEl.textContent = '赚 ¥' + Math.abs(profit).toFixed(2);
+            pEl.style.color = 'var(--success)';
+        } else {
+            pEl.textContent = '持平 ¥0.00';
+            pEl.style.color = 'var(--text-sec)';
+        }
+    } else {
+        box.style.display = 'none';
+    }
+
+    return { collect, rate, totalPayout, commission, profit };
+}
+
+['fCollect', 'fRate'].forEach(id => {
+    document.getElementById(id).addEventListener('input', calc);
+});
+
+// ===== Save =====
+document.getElementById('saveBtn').addEventListener('click', () => {
+    const note = document.getElementById('fNote').value.trim();
+    const c = calc();
+    if (c.collect <= 0) { showToast('请输入收款金额'); return; }
+
+    const record = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        note: note || (new Date().getMonth()+1) + '月' + new Date().getDate() + '日',
+        collect: c.collect,
+        rate: c.rate,
+        payouts: payoutItems.filter(p => (parseFloat(p.count)||0) > 0 || (parseFloat(p.extra)||0) > 0),
+        totalPayout: c.totalPayout,
+        commission: c.commission,
+        profit: c.profit
+    };
+
+    const records = load();
+    records.unshift(record);
+    save(records);
+
+    // Reset
+    document.getElementById('fNote').value = '';
+    document.getElementById('fCollect').value = '';
+    payoutItems = [{ count: '', amount: '', extra: '' }];
+    renderPayouts();
+    document.getElementById('calcBox').style.display = 'none';
+
+    updateSummary();
+    showToast('✅ 已保存！');
+});
+
+// ===== Summary =====
+function updateSummary() {
+    const records = load();
+    const now = new Date();
+    const mr = records.filter(r => {
+        const d = new Date(r.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+
+    const tc = mr.reduce((s,r) => s + r.collect, 0);
+    const tp = mr.reduce((s,r) => s + r.totalPayout, 0);
+    const tcm = mr.reduce((s,r) => s + r.commission, 0);
+    const tpr = mr.reduce((s,r) => s + r.profit, 0);
+
+    document.getElementById('sumCollect').textContent = '¥' + tc.toFixed(2);
+    document.getElementById('sumPayout').textContent = '¥' + tp.toFixed(2);
+    document.getElementById('sumCommission').textContent = '¥' + tcm.toFixed(2);
+
+    const pEl = document.getElementById('sumProfit');
+    if (tpr > 0) {
+        pEl.textContent = '亏 ¥' + tpr.toFixed(2);
+        pEl.style.color = 'var(--danger)';
+    } else if (tpr < 0) {
+        pEl.textContent = '赚 ¥' + Math.abs(tpr).toFixed(2);
+        pEl.style.color = 'var(--success)';
+    } else {
+        pEl.textContent = '¥0.00';
+        pEl.style.color = 'var(--text)';
+    }
+
+    document.getElementById('headerSub').textContent =
+        `${now.getFullYear()}年${now.getMonth()+1}月 · 共${mr.length}笔账`;
+
+    // Today badge
+    const today = now.getDate();
+    document.getElementById('todayBadge').textContent = `${now.getMonth()+1}月${today}日`;
+}
+
+// ===== Records =====
+let viewMonth = new Date();
+
+function renderRecords() {
+    const records = load();
+    const y = viewMonth.getFullYear();
+    const m = viewMonth.getMonth();
+    document.getElementById('curMonth').textContent = `${y}年${m+1}月`;
+
+    const filtered = records.filter(r => {
+        const d = new Date(r.date);
+        return d.getMonth() === m && d.getFullYear() === y;
+    });
+
+    const box = document.getElementById('recList');
+    if (filtered.length === 0) {
+        box.innerHTML = '<div class="empty"><div class="e-icon">📭</div><p>本月暂无记录</p></div>';
+        return;
+    }
+
+    box.innerHTML = filtered.map(r => {
+        const d = new Date(r.date);
+        const ds = `${m+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+        let payoutDetail = '';
+        if (r.payouts && r.payouts.length > 0) {
+            payoutDetail = r.payouts.map(p => {
+                const cnt = parseFloat(p.count) || 0;
+                const amt = parseFloat(p.amount) || 0;
+                const ext = parseFloat(p.extra) || 0;
+                let txt = `${cnt}人×¥${amt.toFixed(2)}`;
+                if (ext > 0) txt += ` + ¥${ext.toFixed(2)}`;
+                return txt + ' = ¥' + (cnt*amt+ext).toFixed(2);
+            }).join('，');
         }
 
-        function saveRecords(records) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-        }
+        const rc = r.profit > 0 ? 'lose' : (r.profit < 0 ? 'gain' : '');
+        const rt = r.profit > 0 ? `亏 ¥${r.profit.toFixed(2)}` : (r.profit < 0 ? `赚 ¥${Math.abs(r.profit).toFixed(2)}` : '持平');
 
-        function getSettings() {
-            try {
-                return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { defaultCommission: 0.1 };
-            } catch { return { defaultCommission: 0.1 }; }
-        }
+        return `
+        <div class="rec-card">
+            <button class="del-btn" onclick="delRec(${r.id})">×</button>
+            <div class="rec-date">${ds}</div>
+            <div class="rec-name">${esc(r.note)}</div>
+            <div class="rec-grid">
+                <span>收款 <b class="v">¥${r.collect.toFixed(2)}</b></span>
+                <span>提成 <b class="v">¥${r.commission.toFixed(2)}</b></span>
+                <span>总赔付 <b class="v" style="color:var(--danger)">¥${r.totalPayout.toFixed(2)}</b></span>
+                <span>比例 <b class="v">${(r.rate*100).toFixed(0)}%</b></span>
+            </div>
+            ${payoutDetail ? `<div class="rec-payouts">🎰 ${esc(payoutDetail)}</div>` : ''}
+            <div class="rec-result ${rc}">
+                <span>盈亏</span>
+                <span>${rt}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-        function saveSettings(settings) {
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-        }
+function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
-        // ===== Tab Navigation =====
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-                if (tab.dataset.tab === 'records') renderRecords();
+document.getElementById('prevMonth').addEventListener('click', () => { viewMonth.setMonth(viewMonth.getMonth()-1); renderRecords(); });
+document.getElementById('nextMonth').addEventListener('click', () => { viewMonth.setMonth(viewMonth.getMonth()+1); renderRecords(); });
+
+function delRec(id) {
+    showConfirm('删除记录', '确定要删除这条记录吗？', () => {
+        save(load().filter(r => r.id !== id));
+        renderRecords(); updateSummary(); showToast('已删除');
+    });
+}
+
+// ===== Settings =====
+document.getElementById('setRate').addEventListener('change', e => {
+    const s = loadSet(); s.rate = parseFloat(e.target.value) || 0.1; saveSet(s);
+    document.getElementById('fRate').value = s.rate;
+    showToast('设置已保存');
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const records = load();
+    if (!records.length) { showToast('暂无数据'); return; }
+    let t = '=== 收单记账本 数据导出 ===\n导出时间：' + new Date().toLocaleString() + '\n\n';
+    records.forEach((r, i) => {
+        const d = new Date(r.date);
+        t += `--- 第${i+1}笔 ---\n`;
+        t += `日期：${d.toLocaleString()}\n`;
+        t += `备注：${r.note}\n`;
+        t += `收款：¥${r.collect.toFixed(2)}（全部给朋友）\n`;
+        if (r.payouts) {
+            r.payouts.forEach((p,j) => {
+                const cnt = parseFloat(p.count)||0, amt = parseFloat(p.amount)||0, ext = parseFloat(p.extra)||0;
+                t += `  赔付${j+1}：${cnt}人×¥${amt.toFixed(2)} + ¥${ext.toFixed(2)} = ¥${(cnt*amt+ext).toFixed(2)}\n`;
             });
-        });
-
-        // ===== Calculation =====
-        let currentViewMonth = new Date();
-
-        function calculate() {
-            const income = parseFloat(document.getElementById('totalIncomeInput').value) || 0;
-            const qty = parseFloat(document.getElementById('quantity').value) || 0;
-            const price = parseFloat(document.getElementById('unitPrice').value) || 0;
-            const extra = parseFloat(document.getElementById('extraCost').value) || 0;
-            const rate = parseFloat(document.getElementById('commissionRate').value) || 0;
-
-            const costQty = qty * price;
-            const totalCost = costQty + extra;
-            const commission = income * rate;
-            const profit = totalCost - income + commission;
-
-            const preview = document.getElementById('calcPreview');
-            if (income > 0 || qty > 0) {
-                preview.style.display = 'block';
-                document.getElementById('previewCostQty').textContent = '¥' + costQty.toFixed(2);
-                document.getElementById('previewExtra').textContent = '¥' + extra.toFixed(2);
-                document.getElementById('previewTotalCost').textContent = '¥' + totalCost.toFixed(2);
-                document.getElementById('previewCommission').textContent = '¥' + commission.toFixed(2);
-                
-                const profitEl = document.getElementById('previewProfit');
-                profitEl.textContent = (profit >= 0 ? '亏 ¥' : '赚 ¥') + Math.abs(profit).toFixed(2);
-                profitEl.style.color = profit >= 0 ? 'var(--danger)' : 'var(--success)';
-            } else {
-                preview.style.display = 'none';
-            }
-
-            return { income, qty, price, extra, rate, costQty, totalCost, commission, profit };
         }
+        t += `总赔付：¥${r.totalPayout.toFixed(2)}\n`;
+        t += `提成(${(r.rate*100).toFixed(0)}%)：¥${r.commission.toFixed(2)}\n`;
+        t += `盈亏：${r.profit > 0 ? '亏' : (r.profit < 0 ? '赚' : '持平')} ¥${Math.abs(r.profit).toFixed(2)}\n\n`;
+    });
+    const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `收单数据_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    showToast('导出成功！');
+});
 
-        // Real-time calculation
-        ['totalIncomeInput', 'quantity', 'unitPrice', 'extraCost', 'commissionRate'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculate);
-        });
+document.getElementById('clearBtn').addEventListener('click', () => {
+    showConfirm('清除所有数据', '确定删除所有记录？不可恢复！', () => {
+        localStorage.removeItem(SK); renderRecords(); updateSummary(); showToast('已清除');
+    });
+});
 
-        // ===== Save Bill =====
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            const name = document.getElementById('billName').value.trim();
-            if (!name) { showToast('请输入账单名称'); return; }
+document.getElementById('formulaBtn').addEventListener('click', () => {
+    document.getElementById('formulaModal').classList.add('active');
+});
 
-            const calc = calculate();
-            if (calc.income <= 0) { showToast('请输入总收入'); return; }
+// ===== Modal =====
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showConfirm(title, msg, cb) {
+    document.getElementById('cfmTitle').textContent = title;
+    document.getElementById('cfmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.add('active');
+    document.getElementById('cfmAction').onclick = () => { closeModal('confirmModal'); cb(); };
+}
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('active'); });
+});
 
-            const record = {
-                id: Date.now(),
-                name,
-                date: new Date().toISOString(),
-                income: calc.income,
-                quantity: calc.qty,
-                unitPrice: calc.price,
-                extraCost: calc.extra,
-                commissionRate: calc.rate,
-                totalCost: calc.totalCost,
-                commission: calc.commission,
-                profit: calc.profit
-            };
+// ===== Toast =====
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
 
-            const records = getRecords();
-            records.unshift(record);
-            saveRecords(records);
+// ===== Init =====
+(function() {
+    const s = loadSet();
+    document.getElementById('fRate').value = s.rate;
+    document.getElementById('setRate').value = s.rate;
+    renderPayouts();
+    updateSummary();
+})();
 
-            // Reset form
-            document.getElementById('billName').value = '';
-            document.getElementById('totalIncomeInput').value = '';
-            document.getElementById('quantity').value = '';
-            document.getElementById('unitPrice').value = '';
-            document.getElementById('extraCost').value = '0';
-            document.getElementById('calcPreview').style.display = 'none';
-
-            updateSummary();
-            showToast('✅ 账单已保存！');
-        });
-
-        // ===== Update Summary =====
-        function updateSummary() {
-            const records = getRecords();
-            const now = new Date();
-            const monthRecords = records.filter(r => {
-                const d = new Date(r.date);
-                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            });
-
-            const totalIncome = monthRecords.reduce((s, r) => s + r.income, 0);
-            const totalCost = monthRecords.reduce((s, r) => s + r.totalCost, 0);
-            const totalCommission = monthRecords.reduce((s, r) => s + r.commission, 0);
-            const totalProfit = monthRecords.reduce((s, r) => s + r.profit, 0);
-
-            document.getElementById('totalIncome').textContent = '¥' + totalIncome.toFixed(2);
-            document.getElementById('totalCost').textContent = '¥' + totalCost.toFixed(2);
-            document.getElementById('totalCommission').textContent = '¥' + totalCommission.toFixed(2);
-            
-            const profitEl = document.getElementById('totalProfit');
-            profitEl.textContent = (totalProfit >= 0 ? '亏 ¥' : '赚 ¥') + Math.abs(totalProfit).toFixed(2);
-            profitEl.style.color = totalProfit >= 0 ? 'var(--danger)' : 'var(--success)';
-
-            document.getElementById('headerSubtitle').textContent = 
-                `${now.getFullYear()}年${now.getMonth()+1}月 · 共${monthRecords.length}笔账单`;
-        }
-
-        // ===== Render Records =====
-        function renderRecords() {
-            const records = getRecords();
-            const year = currentViewMonth.getFullYear();
-            const month = currentViewMonth.getMonth();
-
-            document.getElementById('currentMonth').textContent = `${year}年${month + 1}月`;
-
-            const filtered = records.filter(r => {
-                const d = new Date(r.date);
-                return d.getMonth() === month && d.getFullYear() === year;
-            });
-
-            const container = document.getElementById('recordsList');
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <p>本月暂无账单记录</p>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(r => {
-                const d = new Date(r.date);
-                const dateStr = `${d.getMonth()+1}月${d.getDate()}日 ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-                const profitClass = r.profit >= 0 ? 'negative' : 'positive';
-                const profitText = r.profit >= 0 ? `亏 ¥${r.profit.toFixed(2)}` : `赚 ¥${Math.abs(r.profit).toFixed(2)}`;
-                
-                return `
-                <div class="record-card">
-                    <button class="delete-btn" onclick="deleteRecord(${r.id})">×</button>
-                    <div class="record-date">${dateStr}</div>
-                    <div class="record-title">${escapeHtml(r.name)}</div>
-                    <div class="record-details">
-                        <span>收入 <b class="val">¥${r.income.toFixed(2)}</b></span>
-                        <span>成本 <b class="val">¥${r.totalCost.toFixed(2)}</b></span>
-                        <span>数量 <b class="val">${r.quantity}×¥${r.unitPrice.toFixed(2)}</b></span>
-                        <span>提成 <b class="val">¥${r.commission.toFixed(2)}</b></span>
-                    </div>
-                    <div class="record-loss ${profitClass}">
-                        <span>盈亏</span>
-                        <span>${profitText}</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Month navigation
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentViewMonth.setMonth(currentViewMonth.getMonth() - 1);
-            renderRecords();
-        });
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentViewMonth.setMonth(currentViewMonth.getMonth() + 1);
-            renderRecords();
-        });
-
-        // ===== Delete Record =====
-        function deleteRecord(id) {
-            showConfirm('删除账单', '确定要删除这条账单吗？此操作不可恢复。', () => {
-                const records = getRecords().filter(r => r.id !== id);
-                saveRecords(records);
-                renderRecords();
-                updateSummary();
-                showToast('已删除');
-            });
-        }
-
-        // ===== Settings =====
-        document.getElementById('defaultCommission').addEventListener('change', (e) => {
-            const settings = getSettings();
-            settings.defaultCommission = parseFloat(e.target.value) || 0.1;
-            saveSettings(settings);
-            document.getElementById('commissionRate').value = settings.defaultCommission;
-            showToast('设置已保存');
-        });
-
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            const records = getRecords();
-            if (records.length === 0) { showToast('暂无数据可导出'); return; }
-
-            let text = '=== 收钱记账本 数据导出 ===\n';
-            text += `导出时间：${new Date().toLocaleString()}\n\n`;
-
-            records.forEach((r, i) => {
-                const d = new Date(r.date);
-                text += `--- 第${i+1}笔 ---\n`;
-                text += `名称：${r.name}\n`;
-                text += `日期：${d.toLocaleString()}\n`;
-                text += `总收入：¥${r.income.toFixed(2)}\n`;
-                text += `数量：${r.quantity} × ¥${r.unitPrice.toFixed(2)} = ¥${(r.quantity*r.unitPrice).toFixed(2)}\n`;
-                text += `额外费用：¥${r.extraCost.toFixed(2)}\n`;
-                text += `总成本：¥${r.totalCost.toFixed(2)}\n`;
-                text += `提成(${(r.commissionRate*100).toFixed(0)}%)：¥${r.commission.toFixed(2)}\n`;
-                text += `盈亏：${r.profit >= 0 ? '亏' : '赚'} ¥${Math.abs(r.profit).toFixed(2)}\n\n`;
-            });
-
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `记账数据_${new Date().toISOString().slice(0,10)}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('导出成功！');
-        });
-
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            showConfirm('清除所有数据', '确定要删除所有账单记录吗？此操作不可恢复！', () => {
-                localStorage.removeItem(STORAGE_KEY);
-                renderRecords();
-                updateSummary();
-                showToast('所有数据已清除');
-            });
-        });
-
-        document.getElementById('formulaBtn').addEventListener('click', () => {
-            document.getElementById('formulaModal').classList.add('active');
-        });
-
-        // ===== Modal Helpers =====
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function showConfirm(title, msg, callback) {
-            document.getElementById('confirmTitle').textContent = title;
-            document.getElementById('confirmMsg').textContent = msg;
-            document.getElementById('confirmModal').classList.add('active');
-            document.getElementById('confirmAction').onclick = () => {
-                closeModal('confirmModal');
-                callback();
-            };
-        }
-
-        // Close modal on overlay click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.classList.remove('active');
-            });
-        });
-
-        // ===== Toast =====
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        // ===== Init =====
-        (function init() {
-            const settings = getSettings();
-            document.getElementById('commissionRate').value = settings.defaultCommission;
-            document.getElementById('defaultCommission').value = settings.defaultCommission;
-            updateSummary();
-        })();
-
-        // ===== Service Worker Registration =====
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
-    </script>
+// SW
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
 </body>
 </html>
