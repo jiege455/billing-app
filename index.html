@@ -307,12 +307,6 @@
         <input type="number" id="fPayout" placeholder="输入中奖赔付金额" step="0.01">
     </div>
 
-    <!-- 输入3: 垫付 -->
-    <div class="big-input">
-        <label><span class="emoji">💰</span>我垫付了多少钱</label>
-        <input type="number" id="fAdvance" placeholder="输入垫付金额" step="0.01">
-    </div>
-
     <!-- 结果显示: 提成 + 盈亏 -->
     <div class="result-row">
         <div class="result-card">
@@ -451,7 +445,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 function calc() {
     const collect = parseFloat(document.getElementById('fCollect').value) || 0;
     const payout = parseFloat(document.getElementById('fPayout').value) || 0;
-    const advance = parseFloat(document.getElementById('fAdvance').value) || 0;
     const rate = parseFloat(document.getElementById('setRate').value) || 0.1;
 
     const commission = collect * rate;
@@ -500,12 +493,11 @@ function calc() {
         settleCard.style.display = 'none';
     }
 
-    return { collect, payout, advance, rate, commission, profit, settleDiff: loss };
+    return { collect, payout, rate, commission, profit, settleDiff: loss };
 }
 
 document.getElementById('fCollect').addEventListener('input', calc);
 document.getElementById('fPayout').addEventListener('input', calc);
-document.getElementById('fAdvance').addEventListener('input', calc);
 
 // ===== Save =====
 document.getElementById('saveBtn').addEventListener('click', () => {
@@ -519,7 +511,6 @@ document.getElementById('saveBtn').addEventListener('click', () => {
         note: note || (new Date().getMonth()+1) + '月' + new Date().getDate() + '日',
         collect: c.collect,
         payout: c.payout,
-        advance: c.advance,
         rate: c.rate,
         commission: c.commission,
         profit: c.profit
@@ -533,7 +524,6 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     document.getElementById('fNote').value = '';
     document.getElementById('fCollect').value = '';
     document.getElementById('fPayout').value = '';
-    document.getElementById('fAdvance').value = '';
     document.getElementById('resComm').textContent = '¥0';
     document.getElementById('resCommF').textContent = '收款 × ' + ((loadSet().rate)*100).toFixed(0) + '%';
     document.getElementById('resProfit').textContent = '¥0';
@@ -554,12 +544,11 @@ function updateSummary() {
     });
     const tc = mr.reduce((s,r) => s + r.collect, 0);
     const tp = mr.reduce((s,r) => s + r.payout, 0);
-    const ta = mr.reduce((s,r) => s + (r.advance || 0), 0);
     const tcm = mr.reduce((s,r) => s + r.commission, 0);
     const tpr = mr.reduce((s,r) => s + r.profit, 0);
 
     document.getElementById('sumCollect').textContent = '¥' + tc.toFixed(2);
-    document.getElementById('sumPayout').textContent = '¥' + ta.toFixed(2);
+    document.getElementById('sumPayout').textContent = '¥' + tp.toFixed(2);
     document.getElementById('sumComm').textContent = '¥' + tcm.toFixed(2);
 
     const pEl = document.getElementById('sumProfit');
@@ -597,7 +586,6 @@ function renderRecords() {
             <div class="rec-text">${ds}</div>
             <div class="rec-text">总数：${r.collect.toFixed(2)}</div>
             <div class="rec-text">中：${r.payout.toFixed(2)}</div>
-            <div class="rec-text">垫付：${(r.advance||0).toFixed(2)}</div>
             <div class="rec-text">提成：${r.commission.toFixed(2)}</div>
             <div class="rec-text">${pText}</div>
         </div>`;
@@ -645,7 +633,7 @@ function copyRec(id) {
     if (!r) return;
     const d = new Date(r.date);
     const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n垫付：${(r.advance||0).toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
+    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
     copyText(text);
 }
 
@@ -670,7 +658,6 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
         lines.push(`${r.note}`);
         lines.push(`总数：${r.collect.toFixed(2)}`);
         lines.push(`中：${r.payout.toFixed(2)}`);
-        lines.push(`垫付：${(r.advance||0).toFixed(2)}`);
         lines.push(`提成：${r.commission.toFixed(2)}`);
         lines.push(`${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`);
     });
