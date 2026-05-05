@@ -527,6 +527,7 @@ function renderRecords() {
             <div class="rec-text">${ds}</div>
             <div class="rec-text">总数：${r.collect.toFixed(2)}</div>
             <div class="rec-text">中：${r.payout.toFixed(2)}</div>
+            <div class="rec-text">垫付：${(r.advance||0).toFixed(2)}</div>
             <div class="rec-text">提成：${r.commission.toFixed(2)}</div>
             <div class="rec-text">${pText}</div>
         </div>`;
@@ -549,7 +550,7 @@ function copyRec(id) {
     if (!r) return;
     const d = new Date(r.date);
     const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
+    const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n垫付：${(r.advance||0).toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`;
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => showToast('📋 已复制！'));
     } else {
@@ -582,6 +583,7 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
         lines.push(`${r.note}`);
         lines.push(`总数：${r.collect.toFixed(2)}`);
         lines.push(`中：${r.payout.toFixed(2)}`);
+        lines.push(`垫付：${(r.advance||0).toFixed(2)}`);
         lines.push(`提成：${r.commission.toFixed(2)}`);
         lines.push(`${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`);
     });
