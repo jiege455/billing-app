@@ -180,6 +180,15 @@
             color: var(--primary); border-radius: 50%; font-size: 14px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
+        .rec-text {
+            font-size: 15px; line-height: 1.7; color: var(--text);
+            word-break: break-all;
+        }
+        .rec-sep {
+            text-align: center; color: var(--border);
+            padding: 8px 0 4px; font-size: 14px;
+            user-select: all;
+        }
 
         .empty { text-align: center; padding: 40px 20px; color: var(--text-sec); }
         .empty .ei { font-size: 48px; margin-bottom: 10px; }
@@ -502,29 +511,24 @@ function renderRecords() {
 
     if (!filtered.length) { box.innerHTML = '<div class="empty"><div class="ei">📭</div><p>本月暂无记录</p></div>'; return; }
 
-    box.innerHTML = filtered.map(r => {
+    box.innerHTML = filtered.map((r, idx) => {
         const d = new Date(r.date);
-        const ds = `${m+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        const rc = r.profit > 0 ? 'gain' : (r.profit < 0 ? 'lose' : '');
-        const rt = r.profit > 0 ? `赚 ¥${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏 ¥${Math.abs(r.profit).toFixed(2)}` : '持平');
+        const ds = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        const pText = r.profit > 0 ? `赚：${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏：${Math.abs(r.profit).toFixed(2)}` : '持平：0.00');
+        const sep = idx > 0 && ds !== (filtered[idx-1] ? (() => { const pd = new Date(filtered[idx-1].date); return `${pd.getFullYear()}/${pd.getMonth()+1}/${pd.getDate()}`; })() : '') ? '---------' : '';
         return `
-        <div class="rec-card">
-            <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;">
-                <button class="copy-btn" onclick="copyRec(${r.id})">📋</button>
-                <button class="del-btn" onclick="delRec(${r.id})">×</button>
+        ${sep ? `<div class="rec-sep">${sep}</div>` : ''}
+        <div class="rec-card" style="user-select:all;cursor:text;">
+            <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;user-select:none;">
+                <button class="copy-btn" onclick="event.stopPropagation();copyRec(${r.id})">📋</button>
+                <button class="del-btn" onclick="event.stopPropagation();delRec(${r.id})">×</button>
             </div>
-            <div class="rd">${ds}</div>
-            <div class="rn">${esc(r.note)}</div>
-            <div class="rg">
-                <span>收款 <b class="v">¥${r.collect.toFixed(2)}</b></span>
-                <span>中的 <b class="v" style="color:var(--warning)">¥${r.payout.toFixed(2)}</b></span>
-                <span>垫付 <b class="v" style="color:var(--danger)">¥${(r.advance||0).toFixed(2)}</b></span>
-                <span>提成 <b class="v" style="color:var(--primary)">¥${r.commission.toFixed(2)}</b></span>
-            </div>
-            <div class="rr ${rc}">
-                <span>盈亏</span>
-                <span>${rt}</span>
-            </div>
+            <div class="rec-text">${esc(r.note)}</div>
+            <div class="rec-text">${ds}</div>
+            <div class="rec-text">总数：${r.collect.toFixed(2)}</div>
+            <div class="rec-text">中：${r.payout.toFixed(2)}</div>
+            <div class="rec-text">提成：${r.commission.toFixed(2)}</div>
+            <div class="rec-text">${pText}</div>
         </div>`;
     }).join('');
 }
