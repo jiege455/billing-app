@@ -335,7 +335,7 @@
             <span id="settleCollect">¥0</span>
         </div>
         <div class="settle-row">
-            <span>🎰 中的钱（朋友要还我）</span>
+            <span>💰 我垫付的（朋友要还我）</span>
             <span id="settlePayout">¥0</span>
         </div>
         <div class="settle-row">
@@ -474,15 +474,14 @@ function calc() {
     }
 
     // Settle calculation
-    // 朋友转我 = 中的钱 + 提成 - 收款
-    // 因为：收款给朋友，中的钱我赔的（朋友要还我），提成朋友给我
-    const friendToMe = payout + commission - collect;
+    // 朋友转我 = 垫付 - 收款 + 提成
+    const friendToMe = advance - collect + commission;
 
     const settleCard = document.getElementById('settleCard');
-    if (collect > 0 || payout > 0) {
+    if (collect > 0 || advance > 0) {
         settleCard.style.display = 'block';
         document.getElementById('settleCollect').textContent = '¥' + collect.toFixed(2);
-        document.getElementById('settlePayout').textContent = '¥' + payout.toFixed(2);
+        document.getElementById('settlePayout').textContent = '¥' + advance.toFixed(2);
         document.getElementById('settleComm').textContent = '¥' + commission.toFixed(2);
 
         const sEl = document.getElementById('settleResult');
