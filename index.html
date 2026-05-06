@@ -699,7 +699,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
         t += `  盈亏：${r.profit > 0 ? '亏' : (r.profit < 0 ? '赚' : '持平')} ¥${Math.abs(r.profit).toFixed(2)}\n\n`;
     });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain;charset=utf-8' }));
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + t], { type: 'text/plain;charset=utf-8' }));
     a.download = `收单数据_${new Date().toISOString().slice(0,10)}.txt`;
     a.click();
     showToast('导出成功！');
