@@ -659,7 +659,7 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
     filtered.forEach((r, idx) => {
         const d = new Date(r.date);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-        if (idx > 0) lines.push('---------');
+        if (idx > 0) lines.push('');
         lines.push(`${r.note}`);
         lines.push(`${dateStr}`);
         lines.push(`总数：${r.collect.toFixed(2)}`);
