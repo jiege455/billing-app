@@ -654,18 +654,14 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
     const filtered = records.filter(r => { const d = new Date(r.date); return d.getMonth() === m && d.getFullYear() === y; });
     if (!filtered.length) { showToast('本月暂无记录'); return; }
 
-    // 按日期分组
+    // 每条记录之间用分隔线隔开
     let lines = [];
-    let lastDate = '';
-    filtered.forEach(r => {
+    filtered.forEach((r, idx) => {
         const d = new Date(r.date);
         const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-        if (dateStr !== lastDate) {
-            if (lastDate) lines.push('---------');
-            lines.push(dateStr);
-            lastDate = dateStr;
-        }
+        if (idx > 0) lines.push('---------');
         lines.push(`${r.note}`);
+        lines.push(`${dateStr}`);
         lines.push(`总数：${r.collect.toFixed(2)}`);
         lines.push(`中：${r.payout.toFixed(2)}`);
         lines.push(`提成：${r.commission.toFixed(2)}`);
