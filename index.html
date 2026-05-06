@@ -267,7 +267,7 @@
         <div class="sv green" id="sumCollect">¥0</div>
     </div>
     <div class="s-card">
-        <div class="sl">💸 本月总垫付</div>
+        <div class="sl">💸 本月总结算</div>
         <div class="sv red" id="sumPayout">¥0</div>
     </div>
     <div class="s-card">
@@ -480,10 +480,10 @@ function calc() {
 
         const sEl = document.getElementById('settleResult');
         if (loss > 0) {
-            sEl.textContent = '💵 朋友转给我 ¥' + loss.toFixed(2);
+            sEl.textContent = '转我 ¥' + loss.toFixed(2);
             sEl.className = 'settle-result to-me';
         } else if (loss < 0) {
-            sEl.textContent = '💰 我转给朋友 ¥' + Math.abs(loss).toFixed(2);
+            sEl.textContent = '转你 ¥' + Math.abs(loss).toFixed(2);
             sEl.className = 'settle-result to-friend';
         } else {
             sEl.textContent = '✅ 不用转账';
@@ -546,10 +546,15 @@ function updateSummary() {
     const tp = mr.reduce((s,r) => s + r.payout, 0);
     const tcm = mr.reduce((s,r) => s + r.commission, 0);
     const tpr = mr.reduce((s,r) => s + r.profit, 0);
+    const tsd = mr.reduce((s,r) => s + ((r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission)), 0);
 
     document.getElementById('sumCollect').textContent = '¥' + tc.toFixed(2);
-    document.getElementById('sumPayout').textContent = '¥' + tp.toFixed(2);
     document.getElementById('sumComm').textContent = '¥' + tcm.toFixed(2);
+
+    const sdEl = document.getElementById('sumPayout');
+    if (tsd > 0) { sdEl.textContent = '转我 ¥' + tsd.toFixed(2); sdEl.style.color = 'var(--success)'; }
+    else if (tsd < 0) { sdEl.textContent = '转你 ¥' + Math.abs(tsd).toFixed(2); sdEl.style.color = 'var(--danger)'; }
+    else { sdEl.textContent = '¥0'; sdEl.style.color = 'var(--text)'; }
 
     const pEl = document.getElementById('sumProfit');
     if (tpr > 0) { pEl.textContent = '赚 ¥' + tpr.toFixed(2); pEl.style.color = 'var(--success)'; }
@@ -575,7 +580,7 @@ function renderRecords() {
         const ds = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
         const pText = r.profit > 0 ? `赚：${r.profit.toFixed(2)}` : (r.profit < 0 ? `亏：${Math.abs(r.profit).toFixed(2)}` : '持平：0.00');
         const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
-        const sText = loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账');
+        const sText = loss > 0 ? `转我：${loss.toFixed(2)}` : (loss < 0 ? `转你：${Math.abs(loss).toFixed(2)}` : '不用转账');
         const sep = idx > 0 && ds !== (filtered[idx-1] ? (() => { const pd = new Date(filtered[idx-1].date); return `${pd.getFullYear()}/${pd.getMonth()+1}/${pd.getDate()}`; })() : '') ? '---------' : '';
         return `
         ${sep ? `<div class="rec-sep">${sep}</div>` : ''}
@@ -637,7 +642,7 @@ function copyRec(id) {
     const d = new Date(r.date);
     const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
     const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
-    const sText = loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账');
+    const sText = loss > 0 ? `转我：${loss.toFixed(2)}` : (loss < 0 ? `转你：${Math.abs(loss).toFixed(2)}` : '不用转账');
     const text = `${r.note}\n${dateStr}\n总数：${r.collect.toFixed(2)}\n中：${r.payout.toFixed(2)}\n提成：${r.commission.toFixed(2)}\n${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}\n${sText}`;
     copyText(text);
 }
@@ -666,7 +671,7 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
         lines.push(`提成：${r.commission.toFixed(2)}`);
         lines.push(`${r.profit > 0 ? '赚' : (r.profit < 0 ? '亏' : '持平')}：${Math.abs(r.profit).toFixed(2)}`);
         const loss = (r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission);
-        lines.push(loss > 0 ? `朋友转我：${loss.toFixed(2)}` : (loss < 0 ? `我转朋友：${Math.abs(loss).toFixed(2)}` : '不用转账'));
+        lines.push(loss > 0 ? `转我：${loss.toFixed(2)}` : (loss < 0 ? `转你：${Math.abs(loss).toFixed(2)}` : '不用转账'));
     });
 
     const text = lines.join('\n');
