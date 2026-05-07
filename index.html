@@ -670,6 +670,18 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
         lines.push(loss > 0 ? `转我：${loss.toFixed(2)}` : (loss < 0 ? `转你：${Math.abs(loss).toFixed(2)}` : '不用转账'));
     });
 
+    // 汇总
+    const totalProfit = filtered.reduce((s,r) => s + r.profit, 0);
+    const totalSettle = filtered.reduce((s,r) => s + ((r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission)), 0);
+    lines.push('');
+    lines.push('========= 汇总 =========');
+    if (totalProfit > 0) lines.push(`总赚：${totalProfit.toFixed(2)}`);
+    else if (totalProfit < 0) lines.push(`总亏：${Math.abs(totalProfit).toFixed(2)}`);
+    else lines.push(`总盈亏：持平`);
+    if (totalSettle > 0) lines.push(`总结算：转我 ${totalSettle.toFixed(2)}`);
+    else if (totalSettle < 0) lines.push(`总结算：转你 ${Math.abs(totalSettle).toFixed(2)}`);
+    else lines.push(`总结算：不用转账`);
+
     const text = lines.join('\n');
     copyText(text);
 });
