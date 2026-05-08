@@ -546,7 +546,8 @@ function updateSummary() {
     const tp = mr.reduce((s,r) => s + r.payout, 0);
     const tcm = mr.reduce((s,r) => s + r.commission, 0);
     const tpr = mr.reduce((s,r) => s + r.profit, 0);
-    const tsd = mr.reduce((s,r) => s + ((r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission)), 0);
+    // 用总数直接算总结算：总中的 + 总提成 - 总收款
+    const tsd = tp + tcm - tc;
 
     document.getElementById('sumCollect').textContent = '¥' + tc.toFixed(2);
     document.getElementById('sumComm').textContent = '¥' + tcm.toFixed(2);
@@ -671,8 +672,11 @@ document.getElementById('copyAllBtn').addEventListener('click', () => {
     });
 
     // 汇总
+    const totalCollect = filtered.reduce((s,r) => s + r.collect, 0);
+    const totalPayout = filtered.reduce((s,r) => s + r.payout, 0);
+    const totalComm = filtered.reduce((s,r) => s + r.commission, 0);
     const totalProfit = filtered.reduce((s,r) => s + r.profit, 0);
-    const totalSettle = filtered.reduce((s,r) => s + ((r.settleDiff !== undefined) ? r.settleDiff : (r.payout - r.collect + r.commission)), 0);
+    const totalSettle = totalPayout + totalComm - totalCollect;
     lines.push('');
     lines.push('========= 汇总 =========');
     if (totalProfit > 0) lines.push(`总赚：${totalProfit.toFixed(2)}`);
