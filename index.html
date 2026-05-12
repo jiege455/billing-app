@@ -357,6 +357,10 @@
             <span>🤝 提成</span>
             <span class="settle-green" id="customComm" style="font-size:18px;">¥0</span>
         </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;color:var(--text-sec);cursor:pointer;">
+            <input type="checkbox" id="addToTotal" style="width:18px;height:18px;cursor:pointer;">
+            加到总结算
+        </label>
     </div>
 
     <button class="btn btn-primary" id="saveBtn">💾 保存</button>
@@ -524,9 +528,11 @@ function customCalc() {
     const rate = parseFloat(document.getElementById('customRate').value) || 0;
     const comm = amt * rate / 100;
     document.getElementById('customComm').textContent = '¥' + comm.toFixed(2);
+    updateSummary(); // 更新总结算
 }
 document.getElementById('customAmt').addEventListener('input', customCalc);
 document.getElementById('customRate').addEventListener('input', customCalc);
+document.getElementById('addToTotal').addEventListener('change', updateSummary);
 
 // ===== Save =====
 document.getElementById('saveBtn').addEventListener('click', () => {
@@ -575,8 +581,10 @@ function updateSummary() {
     const tp = mr.reduce((s,r) => s + r.payout, 0);
     const tcm = mr.reduce((s,r) => s + r.commission, 0);
     const tpr = mr.reduce((s,r) => s + r.profit, 0);
-    // 用总数直接算总结算：总中的 + 总提成 - 总收款
-    const tsd = tp + tcm - tc;
+    // 用总数直接算总结算：总中的 + 总提成 - 总收款 + 自定义提成
+    const customComm = parseFloat(document.getElementById('customComm').textContent.replace('¥', '')) || 0;
+    const addToTotal = document.getElementById('addToTotal').checked;
+    const tsd = tp + tcm - tc + (addToTotal ? customComm : 0);
 
     document.getElementById('sumCollect').textContent = '¥' + tc.toFixed(2);
     document.getElementById('sumComm').textContent = '¥' + tcm.toFixed(2);
